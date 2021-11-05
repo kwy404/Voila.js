@@ -2,6 +2,11 @@ const Voila = {app: {el: null}}
 ;(function(){
     class voila {
         constructor(modules){
+            const startSucess = typeof VoilaInstance == 'undefined'
+            if(startSucess){
+                console.error("VoilaInstance não foi instanciada")
+                return
+            }
             this.modules = modules
             this.el = document.querySelectorAll(VoilaInstance.el)[0]
             this.state = VoilaInstance.state || {}
