@@ -2,28 +2,121 @@ const Voila = {app: {el: null}}
 ;(function(){
     class voila {
         constructor(modules){
+            this.delimiters = ['{', '}']
+            this.stateObject = []
+            this.proxyRender = ({prop, val}) => {}
             const startSucess = typeof VoilaInstance == 'undefined'
             if(startSucess){
-                console.error("VoilaInstance não foi instanciada")
+                console.error("VoilaInstance não foi instanciado")
                 return
             }
             this.modules = modules
+            VoilaInstance.proxyRender = this.proxyRender
+            VoilaInstance.stateObject = []
+            VoilaInstance.proxyRenderMethods = this.proxyRenderMethods
             this.el = document.querySelectorAll(VoilaInstance.el)[0]
-            this.state = VoilaInstance.state || {}
-            modules[0]({
-                element: this.el
+            VoilaInstance.el = this.el
+            this.buildDom()
+            Object.keys(VoilaInstance.methods).forEach(function(key, index) {
+                VoilaInstance.methods.state = VoilaInstance.state
+            });
+            VoilaInstance.state = new Proxy(VoilaInstance.state, { // (*)
+                set(target, prop, val) { // to intercept property writing
+                    try {
+                        VoilaInstance.methods.state[prop] = val
+                    } catch (error) {
+                    }
+                }
+            });
+            VoilaInstance.methods.state = new Proxy(VoilaInstance.methods.state, { // (*)
+                set(target, prop, val) { // to intercept property writing
+                    target[prop] = val
+                    VoilaInstance.proxyRenderMethods({prop})
+                }
+            });
+        }
+        validState({child, index}){
+            try {
+                const voilaStates = this
+                const arrayState = child.textContent.trim().split(this.delimiters[0])
+                return arrayState.length > 0 ? ((voilaStates) => {
+                    arrayState.forEach((stateT) => {
+                        const state = stateT.trim().split(`}`)[0].trim()
+                        if(state.trim().length > 0){
+                            VoilaInstance.stateObject.push({state, index, textContent: null})
+                        }
+                    })
+                    return true    
+                })(voilaStates) : ``
+            } catch (error) {
+                console.error(error)
+            }
+        }
+        buildDom(){
+            const nodeC = this.el.childNodes
+            VoilaInstance.cloneNode = 
+            this.el.childNodes.forEach((child, index) => {
+                this.validState({child, index})
+            })
+            this.firstBildDom()
+        }
+        firstBildDom(){
+            this.el.childNodes.forEach((child, index) => {
+                const foundState = VoilaInstance.stateObject.find(state => state.index == index)
+                if(foundState){
+                    foundState.textContent = child.textContent
+                    let newReplace = foundState.textContent
+                    const replaceState = newReplace.replaceAll(foundState.state, VoilaInstance.state[foundState.state]).replaceAll(`{`, ``).replaceAll(`}`,``)
+                    child.textContent = replaceState
+                    try {
+                        const attrs = child.getAttributeNames()
+                        attrs.forEach((attr) => {
+                            const attrOld = attr
+                            attr = attr.replace(`@`, ``)
+                            child.addEventListener(attr, () => {
+                                VoilaInstance.methods[`teste`]()
+                            });
+                            child.removeAttribute(attrOld)
+                        })
+                    } catch (error) {
+                        //console.error(error)
+                    }
+                }
             })
         }
-        
+        replaceState(){
+            
+        }
+        proxyRender({prop}){
+            const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
+            if(foundState){
+                foundState.forEach((state) => {
+                    VoilaInstance.el.childNodes.forEach((child, index) => {
+                        if(state.index == index && state.textContent){
+                            let newReplace = state.textContent
+                            const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
+                            child.textContent = replaceState
+                        }
+                    })
+                })
+            }
+        }
+        proxyRenderMethods({prop}){
+            const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
+            if(foundState){
+                foundState.forEach((state) => {
+                    VoilaInstance.el.childNodes.forEach((child, index) => {
+                        if(state.index == index && state.textContent){
+                            let newReplace = state.textContent
+                            const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
+                            child.textContent = replaceState
+                        }
+                    })
+                })
+            }
+        }
     }
     this.modules = []
     this.body = null
-    function VoilaExec({element, state, methods, mounted}){
-        
-    }
-    function subscribeWindow(callback){
-        this.modules.push(callback)
-    }
-    subscribeWindow(VoilaExec)
     Voila.app = new voila(this.modules)
 })()

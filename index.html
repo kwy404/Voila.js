@@ -8,13 +8,25 @@
 </head>
 <body>
     <div id="app">
-
+        { helloWorld }
+        <button @click="teste">
+        { helloWorld } - 
+        { testando }
+        
+        </button>
     </div>
     <script>
         const VoilaInstance = {
             el: "#app",
             state: {
-                helloWorld: 'Hello World'
+                helloWorld: 1,
+                testando: `Oi`
+            },
+            methods: {
+                teste(){
+                    this.state.helloWorld++
+                    console.log(this.state.helloWorld)
+                }
             }
         }
     </script>
