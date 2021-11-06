@@ -106,9 +106,6 @@ const Voila = {app: {el: null}}
                 }
             })
         }
-        replaceState(){
-            
-        }
         proxyRender({prop}){
             const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
             if(foundState){
