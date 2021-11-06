@@ -47,6 +47,7 @@ const Voila = {app: {el: null}}
                     arrayState.forEach((stateT) => {
                         const state = stateT.trim().split(`}`)[0].trim()
                         if(state.trim().length > 0){
+                            if(!VoilaInstance.state[state]) return ``
                             VoilaInstance.stateObject.push({state, index, textContent: null})
                         }
                     })
