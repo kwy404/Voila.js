@@ -7,7 +7,7 @@ const Voila = {app: {el: null}}
             this.proxyRender = ({prop, val}) => {}
             const startSucess = typeof VoilaInstance == 'undefined'
             if(startSucess){
-                console.error("VoilaInstance não foi instanciado")
+                console.error("[Voila] => VoilaInstance não foi instanciado.")
                 return
             }
             this.modules = modules
@@ -56,8 +56,11 @@ const Voila = {app: {el: null}}
             }
         }
         buildDom(){
+            if(!document.querySelector(this.el)){
+                console.error(`[Voila] => ${this.el} não existe no contexto atual.`)
+                return
+            }
             const nodeC = this.el.childNodes
-            VoilaInstance.cloneNode = 
             this.el.childNodes.forEach((child, index) => {
                 this.validState({child, index})
             })
