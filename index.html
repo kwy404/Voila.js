@@ -9,27 +9,23 @@
 <body>
     <div id="app">
         <button @click="addOne">
-        eta ss asdas
-        { testando }
+        
+        Contador - { contador }
         </button>
     </div>
     <script>
         const VoilaInstance = {
             el: "#app",
             state: {
-                helloWorld: 1,
-                testando: `Oi`
+                contador: 1
             },
             methods: {
                 addOne(){
-                    this.state.helloWorld++
+                    this.state.contador++
                     this.addMore()
                 },
                 addMore(){
-                    this.state.helloWorld += 5
-                },
-                addMore10(){
-                    this.state.helloWorld += 10
+                    this.state.contador += 5
                 }
             }
         }
