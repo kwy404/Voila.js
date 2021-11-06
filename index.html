@@ -13,6 +13,7 @@
         </button>
         Contador - { contador }
         <input v-model="contador"/>
+        <input/>
     </div>
     <script>
         const VoilaInstance = {
@@ -23,7 +24,6 @@
             methods: {
                 addOne(){
                     this.state.contador++
-                    this.addMore()
                 },
                 addMore(){
                     this.state.contador += 5

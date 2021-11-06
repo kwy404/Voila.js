@@ -25,7 +25,6 @@ const Voila = {app: {el: null}}
                 set(target, prop, val, receiver) { // to intercept property writing
                     try {
                         Reflect.set(target, prop, val, receiver);
-                        target[prop] = val;
                         VoilaInstance.methods.state[prop] = val
                     } catch (error) {
                     }
@@ -34,8 +33,7 @@ const Voila = {app: {el: null}}
             VoilaInstance.methods.state = new Proxy(VoilaInstance.methods.state, { // (*)
                 set(target, prop, val, receiver) { // to intercept property writing
                     Reflect.set(target, prop, val, receiver);
-                    target[prop] = val
-                    VoilaInstance.proxyRenderMethods({prop})
+                    VoilaInstance.proxyRenderMethods({prop, receiver})
                 }
             });
         }
@@ -73,13 +71,14 @@ const Voila = {app: {el: null}}
                     child.addEventListener(`keyup`, () => {
                         VoilaInstance.methods.state[state] = child.value
                     });
-                    child.removeAttribute(`v-model`)
                 } 
             }
         }
-        inputModelE(val){
+        inputModelE(val, state){
             document.querySelectorAll(`input`).forEach((input) => {
-                input.value = val
+                if(input.getAttribute(`v-model`) == state){
+                    input.value = val
+                }
             })
         }
         firstBildDom(){
@@ -123,7 +122,7 @@ const Voila = {app: {el: null}}
                 })
             }
         }
-        proxyRenderMethods({prop}){
+        proxyRenderMethods({prop, receiver}){
             const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
             if(foundState){
                 foundState.forEach((state) => {
@@ -132,7 +131,7 @@ const Voila = {app: {el: null}}
                             let newReplace = state.textContent
                             const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
                             child.textContent = replaceState
-                            VoilaInstance.inputModel(VoilaInstance.state[prop])
+                            VoilaInstance.inputModel(VoilaInstance.state[prop], state.state)
                         }
                     })
                 })
