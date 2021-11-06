@@ -9,11 +9,18 @@
 <body>
     <div id="app">
         { helloWorld }
-        <button @click="teste">
-        { helloWorld } - 
+        <button @click="addOne">
         { testando }
-        
         </button>
+        <button
+        @click="addMore">
+            { helloWorld }
+        </button>
+        <button
+        @mouseenter="addMore10">
+            { helloWorld }
+        </button>
+        <input v-model="helloWorld"/>
     </div>
     <script>
         const VoilaInstance = {
@@ -23,9 +30,14 @@
                 testando: `Oi`
             },
             methods: {
-                teste(){
+                addOne(){
                     this.state.helloWorld++
-                    console.log(this.state.helloWorld)
+                },
+                addMore(){
+                    this.state.helloWorld += 5
+                },
+                addMore10(){
+                    this.state.helloWorld += 10
                 }
             }
         }

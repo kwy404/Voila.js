@@ -14,6 +14,7 @@ const Voila = {app: {el: null}}
             VoilaInstance.proxyRender = this.proxyRender
             VoilaInstance.stateObject = []
             VoilaInstance.proxyRenderMethods = this.proxyRenderMethods
+            VoilaInstance.inputModel = this.inputModelE
             this.el = document.querySelectorAll(VoilaInstance.el)[0]
             VoilaInstance.el = this.el
             this.buildDom()
@@ -21,15 +22,18 @@ const Voila = {app: {el: null}}
                 VoilaInstance.methods.state = VoilaInstance.state
             });
             VoilaInstance.state = new Proxy(VoilaInstance.state, { // (*)
-                set(target, prop, val) { // to intercept property writing
+                set(target, prop, val, receiver) { // to intercept property writing
                     try {
+                        Reflect.set(target, prop, val, receiver);
+                        target[prop] = val;
                         VoilaInstance.methods.state[prop] = val
                     } catch (error) {
                     }
                 }
             });
             VoilaInstance.methods.state = new Proxy(VoilaInstance.methods.state, { // (*)
-                set(target, prop, val) { // to intercept property writing
+                set(target, prop, val, receiver) { // to intercept property writing
+                    Reflect.set(target, prop, val, receiver);
                     target[prop] = val
                     VoilaInstance.proxyRenderMethods({prop})
                 }
@@ -60,8 +64,25 @@ const Voila = {app: {el: null}}
             })
             this.firstBildDom()
         }
+        inputModel(child){
+            if(child.tagName == `INPUT`){
+                const state = child.getAttribute(`v-model`)
+                if(state){
+                    child.value = VoilaInstance.state[state]
+                    child.addEventListener(`keyup`, () => {
+                        VoilaInstance.methods.state[state] = child.value
+                    });
+                } 
+            }
+        }
+        inputModelE(val){
+            document.querySelectorAll(`input`).forEach((input) => {
+                input.value = val
+            })
+        }
         firstBildDom(){
             this.el.childNodes.forEach((child, index) => {
+                this.inputModel(child)
                 const foundState = VoilaInstance.stateObject.find(state => state.index == index)
                 if(foundState){
                     foundState.textContent = child.textContent
@@ -73,8 +94,10 @@ const Voila = {app: {el: null}}
                         attrs.forEach((attr) => {
                             const attrOld = attr
                             attr = attr.replace(`@`, ``)
+                            const attributeName = child.getAttribute(attrOld)
                             child.addEventListener(attr, () => {
-                                VoilaInstance.methods[`teste`]()
+                                VoilaInstance.methods[attributeName]()
+                                VoilaInstance.inputModel(VoilaInstance.state[prop])
                             });
                             child.removeAttribute(attrOld)
                         })
@@ -96,6 +119,7 @@ const Voila = {app: {el: null}}
                             let newReplace = state.textContent
                             const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
                             child.textContent = replaceState
+                            VoilaInstance.inputModel(VoilaInstance.state[prop])
                         }
                     })
                 })
@@ -110,6 +134,7 @@ const Voila = {app: {el: null}}
                             let newReplace = state.textContent
                             const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
                             child.textContent = replaceState
+                            VoilaInstance.inputModel(VoilaInstance.state[prop])
                         }
                     })
                 })
