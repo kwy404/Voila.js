@@ -15,6 +15,7 @@ const Voila = {app: {el: null}}
             VoilaInstance.stateObject = []
             VoilaInstance.proxyRenderMethods = this.proxyRenderMethods
             VoilaInstance.inputModel = this.inputModelE
+            VoilaInstance.dinamicAttr = this.dinamicAttr
             this.el = document.querySelectorAll(VoilaInstance.el)[0]
             VoilaInstance.el = this.el
             this.buildDom()
@@ -46,13 +47,34 @@ const Voila = {app: {el: null}}
                         const state = stateT.trim().split(`}`)[0].trim()
                         if(state.trim().length > 0){
                             if(!VoilaInstance.state[state]) return ``
-                            VoilaInstance.stateObject.push({state, index, textContent: null})
+                            VoilaInstance.stateObject.push({state, index, textContent: null, child: null})
                         }
                     })
                     return true    
                 })(voilaStates) : ``
             } catch (error) {
                 console.error(error)
+            }
+        }
+        dinamicAttr(child){
+            try {
+                const attrs = child.getAttributeNames()
+                attrs.forEach((attr) => {
+                    if(attr[0] == `:`){
+                        const attre = attr.replace(`:`, ``)
+                        const state = VoilaInstance.state[child.getAttribute(attr)]
+                        const found = VoilaInstance.stateObject.find(e => e.state == child.getAttribute(attr))
+                        if(found){
+                            const index = VoilaInstance.stateObject.indexOf(found)
+                            VoilaInstance.stateObject[index].child = child
+                            VoilaInstance.stateObject[index].dinamicAttr = true
+                            VoilaInstance.stateObject[index].attr = attre
+                        }
+                        child.setAttribute(attre, state)
+                    }
+                })
+            } catch (error) {
+                
             }
         }
         buildDom(){
@@ -66,6 +88,7 @@ const Voila = {app: {el: null}}
             }
             const nodeC = this.el.childNodes
             this.el.childNodes.forEach((child, index) => {
+                this.dinamicAttr(child)
                 this.validState({child, index})
             })
             this.firstBildDom()
@@ -90,6 +113,7 @@ const Voila = {app: {el: null}}
         }
         firstBildDom(){
             this.el.childNodes.forEach((child, index) => {
+                this.dinamicAttr(child)
                 this.inputModel(child)
                 const foundState = VoilaInstance.stateObject.find(state => state.index == index)
                 if(foundState){
@@ -139,6 +163,7 @@ const Voila = {app: {el: null}}
                             const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
                             child.textContent = replaceState
                             VoilaInstance.inputModel(VoilaInstance.state[prop], state.state)
+                            VoilaInstance.dinamicAttr(VoilaInstance.stateObject.find(e => e.state == state.state).child)
                         }
                     })
                 })
