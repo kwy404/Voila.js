@@ -88,6 +88,7 @@ const Voila = {app: {el: null}}
             }
         }
         buildDom(){
+            VoilaInstance.template ? VoilaInstance.el.innerHTML = VoilaInstance.template : ``
             try {
                 if(!document.querySelector(this.el)){
                     console.error(`[Voila] => ${this.el} não existe no contexto atual.`)
