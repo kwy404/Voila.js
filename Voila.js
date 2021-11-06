@@ -15,6 +15,7 @@ const Voila = {app: {el: null}}
             VoilaInstance.stateObject = []
             VoilaInstance.proxyRenderMethods = this.proxyRenderMethods
             VoilaInstance.inputModel = this.inputModelE
+            VoilaInstance.vModel = [`INPUT`]
             VoilaInstance.dinamicAttr = this.dinamicAttr
             this.el = document.querySelectorAll(VoilaInstance.el)[0]
             VoilaInstance.el = this.el

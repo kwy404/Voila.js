@@ -15,12 +15,15 @@
         <input v-model="contador"/>
         <input/>
         <button :title="contador">oi</button>
+        <br><br>
+        <iframe width="560" height="315" :src="video" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
     <script>
         const VoilaInstance = {
             el: "#app",
             state: {
-                contador: 1
+                contador: 1,
+                video: `https://www.youtube.com/embed/ONEPfBrH59o`
             },
             methods: {
                 addOne(){
