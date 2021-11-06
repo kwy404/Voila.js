@@ -97,7 +97,6 @@ const Voila = {app: {el: null}}
                             const attributeName = child.getAttribute(attrOld)
                             child.addEventListener(attr, () => {
                                 VoilaInstance.methods[attributeName]()
-                                VoilaInstance.inputModel(VoilaInstance.state[prop])
                             });
                             child.removeAttribute(attrOld)
                         })
