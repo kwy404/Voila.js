@@ -56,9 +56,13 @@ const Voila = {app: {el: null}}
             }
         }
         buildDom(){
-            if(!document.querySelector(this.el)){
-                console.error(`[Voila] => ${this.el} não existe no contexto atual.`)
-                return
+            try {
+                if(!document.querySelector(this.el)){
+                    console.error(`[Voila] => ${this.el} não existe no contexto atual.`)
+                    return
+                }
+            } catch (error) {
+                //
             }
             const nodeC = this.el.childNodes
             this.el.childNodes.forEach((child, index) => {
