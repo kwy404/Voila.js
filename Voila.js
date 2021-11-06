@@ -11,6 +11,7 @@ const Voila = {app: {el: null}}
                 return
             }
             this.modules = modules
+            this.addStateDefault()
             VoilaInstance.proxyRender = this.proxyRender
             VoilaInstance.stateObject = []
             VoilaInstance.proxyRenderMethods = this.proxyRenderMethods
@@ -39,6 +40,14 @@ const Voila = {app: {el: null}}
                 }
             });
         }
+        addStateDefault(){
+            const array = [`Math.PI`, `Math.LN2`, `window.location.href`, `window.location.pathname`,
+            `window.location.origin`, `window.location.port`
+            ]
+            array.forEach((state) => {
+                VoilaInstance.state[state] = eval(state)
+            })
+        }
         validState({child, index}){
             try {
                 const voilaStates = this
@@ -48,7 +57,7 @@ const Voila = {app: {el: null}}
                         const state = stateT.trim().split(`}`)[0].trim()
                         if(state.trim().length > 0){
                             if(!VoilaInstance.state[state]) return ``
-                            VoilaInstance.stateObject.push({state, index, textContent: null, child: null})
+                            VoilaInstance.stateObject.push({state, index, textContent: child.textContent, child: null})
                         }
                     })
                     return true    
@@ -112,6 +121,9 @@ const Voila = {app: {el: null}}
                 }
             })
         }
+        stateReplaceEval(state){
+            
+        }
         firstBildDom(){
             this.el.childNodes.forEach((child, index) => {
                 this.dinamicAttr(child)
@@ -120,8 +132,10 @@ const Voila = {app: {el: null}}
                 if(foundState){
                     foundState.textContent = child.textContent
                     let newReplace = foundState.textContent
-                    const replaceState = newReplace.replaceAll(foundState.state, VoilaInstance.state[foundState.state]).replaceAll(`{`, ``).replaceAll(`}`,``)
-                    child.textContent = replaceState
+                    VoilaInstance.stateObject.forEach((stateE) => {
+                        const replaceState = newReplace.replaceAll(stateE.state, VoilaInstance.state[stateE.state]).replaceAll(`{`, ``).replaceAll(`}`,``)
+                        child.textContent = replaceState
+                    })
                     try {
                         const attrs = child.getAttributeNames()
                         attrs.forEach((attr) => {
@@ -140,34 +154,46 @@ const Voila = {app: {el: null}}
             })
         }
         proxyRender({prop}){
-            const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
-            if(foundState){
-                foundState.forEach((state) => {
-                    VoilaInstance.el.childNodes.forEach((child, index) => {
-                        if(state.index == index && state.textContent){
-                            let newReplace = state.textContent
-                            const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
-                            child.textContent = replaceState
-                            VoilaInstance.inputModel(VoilaInstance.state[prop])
-                        }
+            try {
+                const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
+                if(foundState){
+                    foundState.forEach((state) => {
+                        VoilaInstance.el.childNodes.forEach((child, index) => {
+                            if(state.index == index && state.textContent){
+                                let newReplace = state.textContent
+                                VoilaInstance.stateObject.forEach((stateE) => {
+                                    const replaceState = newReplace.replaceAll(stateE.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
+                                    child.textContent = replaceState
+                                    VoilaInstance.inputModel(VoilaInstance.state[prop])
+                                })
+                            }
+                        })
                     })
-                })
+                }
+            } catch (error) {
+                
             }
         }
         proxyRenderMethods({prop, receiver}){
-            const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
-            if(foundState){
-                foundState.forEach((state) => {
-                    VoilaInstance.el.childNodes.forEach((child, index) => {
-                        if(state.index == index && state.textContent){
-                            let newReplace = state.textContent
-                            const replaceState = newReplace.replaceAll(state.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
-                            child.textContent = replaceState
-                            VoilaInstance.inputModel(VoilaInstance.state[prop], state.state)
-                            VoilaInstance.dinamicAttr(VoilaInstance.stateObject.find(e => e.state == state.state).child)
-                        }
+            try {
+                const foundState = VoilaInstance.stateObject.filter(state => state.state == prop)
+                if(foundState){
+                    foundState.forEach((state) => {
+                        VoilaInstance.el.childNodes.forEach((child, index) => {
+                            if(state.index == index && state.textContent){
+                                let newReplace = state.textContent
+                                VoilaInstance.stateObject.forEach((stateE) => {
+                                    const replaceState = newReplace.replaceAll(stateE.state, VoilaInstance.state[prop]).replaceAll(`{`, ``).replaceAll(`}`,``)
+                                    child.textContent = replaceState
+                                    VoilaInstance.inputModel(VoilaInstance.state[prop], stateE.state)
+                                    VoilaInstance.dinamicAttr(VoilaInstance.stateObject.find(e => e.stateE == stateE.state).child)
+                                })
+                            }
+                        })
                     })
-                })
+                }
+            } catch (error) {
+                
             }
         }
     }
