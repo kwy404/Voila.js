@@ -73,6 +73,7 @@ const Voila = {app: {el: null}}
                     child.addEventListener(`keyup`, () => {
                         VoilaInstance.methods.state[state] = child.value
                     });
+                    child.removeAttribute(`v-model`)
                 } 
             }
         }
